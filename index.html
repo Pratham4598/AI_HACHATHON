@@ -8,36 +8,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .chat-container::-webkit-scrollbar {
-            width: 6px;
-        }
-        .chat-container::-webkit-scrollbar-thumb {
-            background-color: #9CA3AF;
-            border-radius: 3px;
-        }
-        .chat-container::-webkit-scrollbar-track {
-            background-color: #F3F4F6;
-        }
-        html.dark .chat-container::-webkit-scrollbar-track {
-            background-color: #374151;
-        }
-        html.dark .chat-container::-webkit-scrollbar-thumb {
-            background-color: #6B7280;
-        }
-        .prose :where(p):not(:where([class~="not-prose"] *)) {
-            margin-top: 0;
-            margin-bottom: 1em;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .chat-container::-webkit-scrollbar { width: 6px; }
+        .chat-container::-webkit-scrollbar-thumb { background-color: #9CA3AF; border-radius: 3px; }
+        .chat-container::-webkit-scrollbar-track { background-color: #F3F4F6; }
+        html.dark .chat-container::-webkit-scrollbar-track { background-color: #374151; }
+        html.dark .chat-container::-webkit-scrollbar-thumb { background-color: #6B7280; }
+        .prose :where(p):not(:where([class~="not-prose"] *)) { margin-top: 0; margin-bottom: 1em; }
+        #app-container { display: none; } /* Hide main app by default */
     </style>
     <script>
-        // THIS IS THE FIX: Tell Tailwind to use the 'class' strategy for dark mode
-        tailwind.config = {
-            darkMode: 'class',
-        }
-        // Set theme on initial load to prevent flashing
+        tailwind.config = { darkMode: 'class' }
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
@@ -45,97 +26,112 @@
         }
     </script>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900 p-4 min-h-screen transition-colors duration-300">
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900 min-h-screen transition-colors duration-300">
 
-    <div id="connection-error" class="hidden fixed top-4 left-1/2 -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50 text-center">
-        <strong class="font-bold">Connection Error!</strong>
-        <span class="block sm:inline">Could not connect to the backend server. Please ensure it's running and try again.</span>
+    <!-- Authentication Container -->
+    <div id="auth-container">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="w-full max-w-md p-8 space-y-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl">
+                <!-- Login View -->
+                <div id="login-view">
+                    <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white">Welcome Back!</h2>
+                    <p class="text-center text-gray-600 dark:text-gray-400">Sign in to continue</p>
+                    <form id="login-form" class="mt-8 space-y-6">
+                        <div id="login-error" class="hidden text-red-500 text-sm text-center"></div>
+                        <input type="email" id="login-email" placeholder="Email Address" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="password" id="login-password" placeholder="Password" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="w-full py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">Login</button>
+                    </form>
+                    <p class="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
+                        Don't have an account? <a href="#" id="show-register" class="font-medium text-blue-600 hover:underline dark:text-blue-400">Register here</a>
+                    </p>
+                </div>
+                <!-- Register View -->
+                <div id="register-view" class="hidden">
+                    <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white">Create Account</h2>
+                    <p class="text-center text-gray-600 dark:text-gray-400">Get your free AI assistant now</p>
+                    <form id="register-form" class="mt-8 space-y-6">
+                         <div id="register-error" class="hidden text-red-500 text-sm text-center"></div>
+                        <input type="email" id="register-email" placeholder="Email Address" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="password" id="register-password" placeholder="Password" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="w-full py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">Register</button>
+                    </form>
+                    <p class="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
+                        Already have an account? <a href="#" id="show-login" class="font-medium text-blue-600 hover:underline dark:text-blue-400">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <div class="text-center flex-grow">
-                <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-2 flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600 dark:text-green-400 h-8 w-8"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                    AI Finance Assistant
-                </h1>
-                <p class="text-gray-600 dark:text-gray-400">Your personal AI-powered financial advisor</p>
-            </div>
-            <button id="theme-toggle" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                <svg id="theme-icon-light" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-            </button>
+    <!-- Main App Container -->
+    <div id="app-container" class="p-4">
+        <div id="connection-error" class="hidden fixed top-4 left-1/2 -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50 text-center">
+            <strong class="font-bold">Connection Error!</strong>
+            <span class="block sm:inline">Could not connect to the backend server. Please ensure it's running and try again.</span>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left Column: Controls & Overview -->
-            <div class="lg:col-span-1 space-y-6">
-                <!-- Data Privacy Controls -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
-                    <div class="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600 dark:text-blue-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Data Privacy Controls</h3>
-                    </div>
-                    <div class="p-5">
-                        <div id="permissions-container" class="space-y-3">
-                            <!-- Permissions will be dynamically inserted here -->
-                        </div>
-                    </div>
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                 <button id="logout-btn" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </button>
+                <div class="text-center flex-grow">
+                    <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-2 flex items-center justify-center gap-2">
+                        AI Finance Assistant
+                    </h1>
                 </div>
-
-                <!-- Financial Overview -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
-                    <div class="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600 dark:text-green-400"><line x1="12" y1="20" x2="12" y2="4"></line><polyline points="18 10 12 4 6 10"></polyline></svg>
-                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Financial Overview</h3>
-                    </div>
-                    <div class="p-5 space-y-4">
-                        <div class="p-4 bg-green-50 dark:bg-green-900/50 rounded-lg">
-                            <p class="font-semibold text-green-800 dark:text-green-300">Net Worth</p>
-                            <p id="net-worth" class="text-2xl font-bold text-green-600 dark:text-green-400">₹0</p>
-                        </div>
-                         <div id="assets-overview" class="p-4 bg-blue-50 dark:bg-blue-900/50 rounded-lg">
-                            <p class="font-semibold text-blue-800 dark:text-blue-300">Total Assets</p>
-                            <p id="total-assets" class="text-xl font-bold text-blue-600 dark:text-blue-400">₹0</p>
-                        </div>
-                         <div id="liabilities-overview" class="p-4 bg-red-50 dark:bg-red-900/50 rounded-lg">
-                            <p class="font-semibold text-red-800 dark:text-red-300">Total Liabilities</p>
-                            <p id="total-liabilities" class="text-xl font-bold text-red-600 dark:text-red-400">₹0</p>
-                        </div>
-                    </div>
-                </div>
+                <button id="theme-toggle" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
+                    <svg id="theme-icon-light" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
             </div>
-
-            <!-- Right Column: Chat & Insights -->
-            <div class="lg:col-span-2">
-                <!-- Chat Interface -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
-                    <div class="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-600 dark:text-purple-400"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Chat with Your AI Assistant</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
+                        <div class="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Data Privacy Controls</h3>
+                        </div>
+                        <div class="p-5">
+                            <div id="permissions-container" class="space-y-3"></div>
+                        </div>
                     </div>
-                    <div class="p-5">
-                        <div id="chat-container" class="chat-container h-96 overflow-y-auto mb-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg space-y-4">
-                            <div id="welcome-message" class="text-center text-gray-500 dark:text-gray-400 mt-24">
-                                <p>Start by asking me about your finances!</p>
-                                <p class="text-sm mt-2">Try: "What is my net worth?" or "How much did I spend on groceries last month?"</p>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
+                        <div class="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Financial Overview</h3>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="p-4 bg-green-50 dark:bg-green-900/50 rounded-lg">
+                                <p class="font-semibold text-green-800 dark:text-green-300">Net Worth</p>
+                                <p id="net-worth" class="text-2xl font-bold text-green-600 dark:text-green-400">₹0</p>
+                            </div>
+                            <div id="assets-overview" class="p-4 bg-blue-50 dark:bg-blue-900/50 rounded-lg">
+                                <p class="font-semibold text-blue-800 dark:text-blue-300">Total Assets</p>
+                                <p id="total-assets" class="text-xl font-bold text-blue-600 dark:text-blue-400">₹0</p>
+                            </div>
+                            <div id="liabilities-overview" class="p-4 bg-red-50 dark:bg-red-900/50 rounded-lg">
+                                <p class="font-semibold text-red-800 dark:text-red-300">Total Liabilities</p>
+                                <p id="total-liabilities" class="text-xl font-bold text-red-600 dark:text-red-400">₹0</p>
                             </div>
                         </div>
-                        <div id="loading-indicator" class="hidden mb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm shrink-0">AI</div>
-                                <div class="bg-gray-200 dark:bg-gray-700 p-3 rounded-lg flex items-center space-x-2">
-                                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
-                                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md">
+                        <div class="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Chat with Your AI Assistant</h3>
                         </div>
-                        <div class="flex gap-2">
-                            <input id="user-input" type="text" placeholder="Ask a financial question..." class="flex-1 p-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <button id="send-btn" class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                            </button>
+                        <div class="p-5">
+                            <div id="chat-container" class="chat-container h-96 overflow-y-auto mb-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg space-y-4">
+                                <div id="welcome-message" class="text-center text-gray-500 dark:text-gray-400 mt-24"></div>
+                            </div>
+                            <div id="loading-indicator" class="hidden mb-4"></div>
+                            <div class="flex gap-2">
+                                <input id="user-input" type="text" placeholder="Ask a financial question..." class="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button id="send-btn" class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -148,15 +144,23 @@
             const API_URL = 'http://localhost:3001';
             let financialData = {};
             let permissions = {
-                assets: true,
-                liabilities: true,
-                transactions: true,
-                epfBalance: false,
-                creditScore: false,
-                investments: true
+                assets: true, liabilities: true, transactions: true,
+                epfBalance: false, creditScore: false, investments: true
             };
 
             // --- DOM Elements ---
+            const authContainer = document.getElementById('auth-container');
+            const appContainer = document.getElementById('app-container');
+            const loginView = document.getElementById('login-view');
+            const registerView = document.getElementById('register-view');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const showRegisterBtn = document.getElementById('show-register');
+            const showLoginBtn = document.getElementById('show-login');
+            const logoutBtn = document.getElementById('logout-btn');
+            const loginError = document.getElementById('login-error');
+            const registerError = document.getElementById('register-error');
+
             const sendBtn = document.getElementById('send-btn');
             const userInput = document.getElementById('user-input');
             const chatContainer = document.getElementById('chat-container');
@@ -167,45 +171,95 @@
             const themeToggle = document.getElementById('theme-toggle');
             const themeIconLight = document.getElementById('theme-icon-light');
             const themeIconDark = document.getElementById('theme-icon-dark');
+            
+            // --- App State ---
+            const showApp = () => {
+                authContainer.style.display = 'none';
+                appContainer.style.display = 'block';
+            };
+            const showAuth = () => {
+                authContainer.style.display = 'block';
+                appContainer.style.display = 'none';
+                localStorage.removeItem('token');
+            };
+
+            // --- Authentication Logic ---
+            showRegisterBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginView.classList.add('hidden');
+                registerView.classList.remove('hidden');
+            });
+
+            showLoginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                registerView.classList.add('hidden');
+                loginView.classList.remove('hidden');
+            });
+            
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                try {
+                    const res = await fetch(`${API_URL}/api/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.msg || 'Registration failed');
+                    localStorage.setItem('token', data.token);
+                    await initializeApp();
+                } catch (err) {
+                    registerError.textContent = err.message;
+                    registerError.classList.remove('hidden');
+                }
+            });
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                try {
+                    const res = await fetch(`${API_URL}/api/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.msg || 'Login failed');
+                    localStorage.setItem('token', data.token);
+                    await initializeApp();
+                } catch (err) {
+                    loginError.textContent = err.message;
+                    loginError.classList.remove('hidden');
+                }
+            });
+            
+            logoutBtn.addEventListener('click', () => {
+                showAuth();
+            });
 
             // --- Theme Toggle Logic ---
             const updateThemeIcons = () => {
                 if (document.documentElement.classList.contains('dark')) {
-                    themeIconLight.classList.remove('hidden');
-                    themeIconDark.classList.add('hidden');
+                    themeIconLight.classList.remove('hidden'); themeIconDark.classList.add('hidden');
                 } else {
-                    themeIconLight.classList.add('hidden');
-                    themeIconDark.classList.remove('hidden');
+                    themeIconLight.classList.add('hidden'); themeIconDark.classList.remove('hidden');
                 }
             };
-
             themeToggle.addEventListener('click', () => {
                 document.documentElement.classList.toggle('dark');
-                if (document.documentElement.classList.contains('dark')) {
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    localStorage.setItem('theme', 'light');
-                }
+                localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
                 updateThemeIcons();
             });
 
-            // --- Formatting and UI Helpers ---
-            const formatToRupees = (value) => {
-                return new Intl.NumberFormat('en-IN', {
-                    style: 'currency',
-                    currency: 'INR',
-                    maximumFractionDigits: 0
-                }).format(value);
-            };
-
+            // --- Core App Logic (dashboard, chat, etc.) ---
+            const formatToRupees = (value) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
             const addMessageToChat = (sender, message) => {
-                if (welcomeMessage) {
-                    welcomeMessage.style.display = 'none';
-                }
-
+                if (welcomeMessage) welcomeMessage.style.display = 'none';
                 const messageWrapper = document.createElement('div');
                 const messageDiv = document.createElement('div');
-                
                 if (sender === 'user') {
                     messageWrapper.className = 'flex justify-end';
                     messageDiv.className = 'bg-blue-600 text-white p-3 rounded-xl max-w-lg break-words';
@@ -215,94 +269,63 @@
                     messageDiv.className = 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 p-3 rounded-xl max-w-lg prose prose-sm dark:prose-invert';
                     messageDiv.innerHTML = marked.parse(message);
                 }
-                
                 messageWrapper.appendChild(messageDiv);
                 chatContainer.appendChild(messageWrapper);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             };
-
             const setLoading = (isLoading) => {
-                sendBtn.disabled = isLoading;
-                userInput.disabled = isLoading;
-                loadingIndicator.style.display = isLoading ? 'block' : 'none';
+                sendBtn.disabled = isLoading; userInput.disabled = isLoading;
+                if(isLoading) {
+                    loadingIndicator.innerHTML = `<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-800 dark:text-blue-300 font-bold text-sm shrink-0">AI</div><div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg flex items-center space-x-2"><div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div><div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div><div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div></div></div>`;
+                } else {
+                    loadingIndicator.innerHTML = '';
+                }
             };
-
             const renderPermissions = () => {
                 permissionsContainer.innerHTML = '';
-                const categoryNames = {
-                    assets: 'Assets',
-                    liabilities: 'Liabilities',
-                    transactions: 'Transactions',
-                    epfBalance: 'EPF Balance',
-                    creditScore: 'Credit Score',
-                    investments: 'Investments'
-                };
                 Object.keys(permissions).forEach(key => {
                     const granted = permissions[key];
                     const div = document.createElement('div');
                     div.className = 'flex items-center justify-between p-2 rounded-lg border border-gray-200 dark:border-gray-600';
-                    div.innerHTML = `
-                        <span class="capitalize font-medium text-gray-700 dark:text-gray-300">${categoryNames[key]}</span>
-                        <button data-category="${key}" class="permission-toggle p-1.5 rounded-full transition-colors ${granted ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400' : 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400'}">
-                            ${granted ? 
-                                '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>' : 
-                                '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>'
-                            }
-                        </button>
-                    `;
+                    const icon = granted 
+                        ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>` 
+                        : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 5-5v0a5 5 0 0 1 5 5v4"></path></svg>`;
+                    div.innerHTML = `<span class="capitalize font-medium text-gray-700 dark:text-gray-300">${key.replace(/([A-Z])/g, ' $1')}</span><button data-category="${key}" class="permission-toggle p-1.5 rounded-full ${granted ? 'bg-green-100 dark:bg-green-900/50' : 'bg-red-100 dark:bg-red-900/50'}">${icon}</button>`;
                     permissionsContainer.appendChild(div);
                 });
             };
-
             const updateDashboard = () => {
                 const totalAssets = permissions.assets ? Object.values(financialData.assets || {}).reduce((s, v) => s + v, 0) : 0;
                 const totalLiabilities = permissions.liabilities ? Object.values(financialData.liabilities || {}).reduce((s, v) => s + v, 0) : 0;
-                
                 document.getElementById('total-assets').textContent = formatToRupees(totalAssets);
-                document.getElementById('liabilities-overview').style.display = permissions.liabilities ? 'block' : 'none';
                 document.getElementById('total-liabilities').textContent = formatToRupees(totalLiabilities);
-                document.getElementById('assets-overview').style.display = permissions.assets ? 'block' : 'none';
-
-                const netWorth = (permissions.assets && permissions.liabilities) ? totalAssets - totalLiabilities : (permissions.assets ? totalAssets : 0);
-                document.getElementById('net-worth').textContent = formatToRupees(netWorth);
+                document.getElementById('net-worth').textContent = formatToRupees(totalAssets - totalLiabilities);
             };
-
-            // --- Event Handlers ---
             const handleSendMessage = async () => {
                 const query = userInput.value.trim();
                 if (!query) return;
-
                 addMessageToChat('user', query);
                 userInput.value = '';
                 setLoading(true);
-
                 try {
+                    const token = localStorage.getItem('token');
                     const response = await fetch(`${API_URL}/api/chat`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                         body: JSON.stringify({ query, permissions })
                     });
-
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
+                    if (!response.ok) throw new Error('Network response was not ok');
                     const data = await response.json();
                     addMessageToChat('ai', data.response);
                 } catch (error) {
-                    console.error('Error fetching AI response:', error);
-                    addMessageToChat('ai', 'Sorry, I am having trouble connecting to my brain right now. Please try again later.');
+                    addMessageToChat('ai', 'Sorry, I am having trouble connecting. Please try again.');
                 } finally {
                     setLoading(false);
                 }
             };
 
             sendBtn.addEventListener('click', handleSendMessage);
-            userInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    handleSendMessage();
-                }
-            });
-
+            userInput.addEventListener('keypress', (e) => e.key === 'Enter' && handleSendMessage());
             permissionsContainer.addEventListener('click', (e) => {
                 const button = e.target.closest('.permission-toggle');
                 if (button) {
@@ -315,27 +338,32 @@
 
             // --- Initialization ---
             const initializeApp = async () => {
+                const token = localStorage.getItem('token');
+                if (!token) { showAuth(); return; }
+                
                 try {
-                    const response = await fetch(`${API_URL}/api/financial-data`);
+                    const response = await fetch(`${API_URL}/api/financial-data`, {
+                        headers: { 'x-auth-token': token }
+                    });
                     if (!response.ok) {
-                        throw new Error('Could not fetch financial data from backend.');
+                        if (response.status === 401) throw new Error('Session expired');
+                        throw new Error('Could not fetch data');
                     }
                     financialData = await response.json();
                     connectionError.style.display = 'none';
+                    welcomeMessage.innerHTML = `<p>Welcome back! Ask me anything about your finances.</p>`;
                     renderPermissions();
                     updateDashboard();
+                    showApp(); // Show the main app after successful data fetch
                 } catch (error) {
-                    console.error('Initialization Error:', error);
-                    connectionError.style.display = 'block';
-                    sendBtn.disabled = true;
-                    userInput.disabled = true;
-                    userInput.placeholder = 'Cannot connect to server...';
+                    console.error('Initialization Error:', error.message);
+                    showAuth(); // If any error (like expired token), go back to login
                 }
             };
-
+            
             // --- Run on Load ---
-            updateThemeIcons(); // Set the initial icon state immediately.
-            initializeApp(); // Then, try to connect to the backend.
+            updateThemeIcons();
+            initializeApp();
         });
     </script>
 </body>
